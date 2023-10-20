@@ -7,6 +7,8 @@
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a
 // hint.
 
+use std::default;
+
 #[derive(Debug)]
 struct Person {
     name: String,
@@ -40,10 +42,18 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        let mut parts = s.splitn(2, ',');
+        let name = parts.next().unwrap_or("");
+        let age = parts.next().and_then(|age_str| age_str.parse().ok());
+
+        age.map(|age| Person {
+            name: name.to_string(),
+            age,
+        })
+        .filter(|_| !name.is_empty())
+        .unwrap_or_else(Person::default)
     }
 }
 
@@ -127,6 +137,8 @@ mod tests {
     #[test]
     fn test_trailing_comma() {
         let p: Person = Person::from("Mike,32,");
+
+        print!("{:?}", p);
         assert_eq!(p.name, "John");
         assert_eq!(p.age, 30);
     }
